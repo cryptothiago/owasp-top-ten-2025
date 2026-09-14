@@ -22,15 +22,12 @@ jobs:
           GIT_COMMIT_SHA: ${{ github.sha }}
         run: |
           tar -czf /tmp/source.tar.gz .
-          METADATA=$(python3 -c "
-import json, os
-print(json.dumps({
-  'gitRepo': os.environ['GIT_REPO'],
-  'gitBranch': os.environ['GIT_BRANCH'],
-  'gitCommitSha': os.environ['GIT_COMMIT_SHA'],
-  'projectName': os.environ['GIT_REPO'].split('/')[-1],
-}))
-")
+          METADATA=$(jq -n \
+            --arg gitRepo "$GIT_REPO" \
+            --arg gitBranch "$GIT_BRANCH" \
+            --arg gitCommitSha "$GIT_COMMIT_SHA" \
+            --arg projectName "${GIT_REPO##*/}" \
+            '{gitRepo:$gitRepo, gitBranch:$gitBranch, gitCommitSha:$gitCommitSha, projectName:$projectName}')
           RESPONSE=$(curl -sS -f \
             -H "Authorization: Bearer ${IDRIX_API_TOKEN}" \
             -F "archive=@/tmp/source.tar.gz;type=application/gzip" \
