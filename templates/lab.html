@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}{{ lab.code }} — {{ lab.pt }}{% endblock %}
+{% block content %}
+<a href="{{ url_for('home') }}" class="back">← Voltar</a>
+<section class="lab-head">
+  <p class="eyebrow">{{ lab.code }}</p>
+  <h1>{{ lab.pt }}</h1>
+  <p class="muted">{{ lab.title }}</p>
+  <p>{{ lab.summary }}</p>
+</section>
+
+<div class="two-col">
+  <section class="panel vuln">
+    <span class="tag">VULNERÁVEL</span>
+    <h2>Como reproduzir</h2>
+    <p>{{ lab.attack }}</p>
+
+    {% if lab.id == "a01" %}
+      <p><a class="button danger" href="/vuln/notes/1">Minha nota #1</a> <a class="button danger" href="/vuln/notes/2">Trocar ID para #2</a></p>
+    {% elif lab.id == "a02" %}
+      <a class="button danger" href="/vuln/diagnostics">Abrir diagnóstico vulnerável</a>
+    {% elif lab.id == "a03" %}
+      <a class="button danger" href="/vuln/package-check?package=flask&version=999.0.0&sha256=qualquer-coisa">Forjar metadados de pacote</a>
+    {% elif lab.id == "a04" %}
+      <a class="button danger" href="/vuln/profile/alice">Ver armazenamento vulnerável</a>
+    {% elif lab.id == "a05" %}
+      <form action="/vuln/search" method="get">
+        <input name="q" value="' OR '1'='1' --">
+        <button class="danger">Executar busca vulnerável</button>
+      </form>
+    {% elif lab.id == "a06" %}
+      <form action="/vuln/coupon" method="post">
+        <input name="code" value="WELCOME50">
+        <button class="danger">Aplicar cupom</button>
+      </form>
+    {% elif lab.id == "a07" %}
+      <form action="/vuln/login" method="post">
+        <input name="username" value="alice">
+        <input name="password" value="alice123">
+        <button class="danger">Login vulnerável</button>
+      </form>
+    {% elif lab.id == "a08" %}
+      <a class="button danger" href="/vuln/profile-cookie?username=alice&role=admin">Forjar role=admin</a>
+    {% elif lab.id == "a09" %}
+      <form action="/vuln/admin-action" method="post"><button class="danger">Executar ação sem log</button></form>
+    {% elif lab.id == "a10" %}
+      <a class="button danger" href="/vuln/divide?value=0">Gerar exceção</a>
+    {% endif %}
+  </section>
+
+  <section class="panel fixed">
+    <span class="tag">CORRIGIDO</span>
+    <h2>Mitigação</h2>
+    <p>{{ lab.fix }}</p>
+
+    {% if lab.id == "a01" %}
+      <p><a class="button good" href="/fixed/notes/1">Minha nota #1</a> <a class="button good" href="/fixed/notes/2">Tentar nota #2</a></p>
+    {% elif lab.id == "a02" %}
+      <a class="button good" href="/fixed/diagnostics">Abrir diagnóstico corrigido</a>
+    {% elif lab.id == "a03" %}
+      <a class="button good" href="/fixed/package-check?package=flask&version=3.1.2&sha256=demo-approved-hash-flask-3.1.2">Validar pacote aprovado</a>
+    {% elif lab.id == "a04" %}
+      <a class="button good" href="/fixed/profile/alice">Ver armazenamento corrigido</a>
+    {% elif lab.id == "a05" %}
+      <form action="/fixed/search" method="get">
+        <input name="q" value="' OR '1'='1' --">
+        <button class="good">Executar parametrizado</button>
+      </form>
+    {% elif lab.id == "a06" %}
+      <form action="/fixed/coupon" method="post">
+        <input name="code" value="WELCOME50">
+        <button class="good">Aplicar com limite</button>
+      </form>
+    {% elif lab.id == "a07" %}
+      <form action="/fixed/login" method="post">
+        <input name="username" value="alice">
+        <input name="password" value="alice123">
+        <button class="good">Login corrigido</button>
+      </form>
+    {% elif lab.id == "a08" %}
+      <a class="button good" href="/fixed/profile-cookie?username=alice">Gerar estado assinado</a>
+    {% elif lab.id == "a09" %}
+      <form action="/fixed/admin-action" method="post"><button class="good">Executar ação com log</button></form>
+      <p><a href="/audit">Ver audit log</a></p>
+    {% elif lab.id == "a10" %}
+      <a class="button good" href="/fixed/divide?value=0">Gerar erro seguro</a>
+    {% endif %}
+  </section>
+</div>
+
+<section class="lesson">
+  <h2>Objetivo do exercício</h2>
+  <p>Compare o comportamento das duas implementações, leia o código em <code>app.py</code> e identifique exatamente em que ponto o controle de segurança foi adicionado.</p>
+</section>
+{% endblock %}
