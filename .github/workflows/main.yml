@@ -1,8 +1,40 @@
-- uses: actions/checkout@v4
-  with:
-    fetch-depth: 0   # necessário: o scanner precisa do histórico completo do git
+name: IDRIX Security Scan
 
-- uses: idrix-security/scan-action@v1
-  with:
-    api-url: https://idrix-gateway.publivita.workers.dev
-    api-token: ${{ secrets.IDRIX_CI_TOKEN }}
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # necessário: o scanner precisa do histórico completo do git
+
+      - name: Empacotar e enviar código para análise
+        env:
+          IDRIX_API_URL: https://idrix-gateway.publivita.workers.dev
+          IDRIX_API_TOKEN: ${{ secrets.IDRIX_CI_TOKEN }}
+          GIT_REPO: ${{ github.repository }}
+          GIT_BRANCH: ${{ github.ref_name }}
+          GIT_COMMIT_SHA: ${{ github.sha }}
+        run: |
+          tar -czf /tmp/source.tar.gz .
+          METADATA=$(python3 -c "
+import json, os
+print(json.dumps({
+  'gitRepo': os.environ['GIT_REPO'],
+  'gitBranch': os.environ['GIT_BRANCH'],
+  'gitCommitSha': os.environ['GIT_COMMIT_SHA'],
+  'projectName': os.environ['GIT_REPO'].split('/')[-1],
+}))
+")
+          RESPONSE=$(curl -sS -f \
+            -H "Authorization: Bearer ${IDRIX_API_TOKEN}" \
+            -F "archive=@/tmp/source.tar.gz;type=application/gzip" \
+            -F "metadata=${METADATA};type=application/json" \
+            "${IDRIX_API_URL}/api/v1/ci/scans")
+          echo "$RESPONSE"
+          echo "Scan disparado — acompanhe no dashboard da IDRIX."
