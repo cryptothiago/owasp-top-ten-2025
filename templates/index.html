@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}OWASP Top 10:2025 Lab{% endblock %}
+{% block content %}
+<section class="hero">
+  <p class="eyebrow">APPSEC TRAINING LAB</p>
+  <h1>OWASP Top 10:<span>2025</span></h1>
+  <p>Aplicação educacional para estudar vulnerabilidades, reprodução controlada e correções lado a lado.</p>
+</section>
+
+<section class="controls">
+  <div>
+    <h2>Conta do laboratório</h2>
+    <p>Para A01, use <code>alice / alice123</code>.</p>
+    {% if not current_user %}
+    <form action="{{ url_for('login') }}" method="post" class="inline-form">
+      <input name="username" value="alice" aria-label="Usuário">
+      <input name="password" value="alice123" type="password" aria-label="Senha">
+      <button>Entrar</button>
+    </form>
+    {% endif %}
+  </div>
+  <form action="{{ url_for('reset') }}" method="post">
+    <button class="secondary">Resetar banco</button>
+  </form>
+</section>
+
+<section class="grid">
+{% for lab in labs %}
+  <article class="card">
+    <div class="card-code">{{ lab.code }}</div>
+    <h2>{{ lab.pt }}</h2>
+    <p class="muted">{{ lab.title }}</p>
+    <p>{{ lab.summary }}</p>
+    <a class="button" href="{{ url_for('lab', lab_id=lab.id) }}">Abrir laboratório →</a>
+  </article>
+{% endfor %}
+</section>
+{% endblock %}
